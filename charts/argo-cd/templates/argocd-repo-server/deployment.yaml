@@ -167,8 +167,8 @@ spec:
         configMap:
           name: argocd-gpg-keys-cm
       - name: gpg-keyring
-        {{- if $.Values.repoServer.default.volumes.gpg_keyring -}}
-        {{ toYaml $.Values.repoServer.default.volumes.gpg_keyring | nindent 8  }}
+        {{- if $.Values.repoServer.existingVolumes.gpg_keyring -}}
+        {{ toYaml $.Values.repoServer.existingVolumes.gpg_keyring | nindent 8  }}
         {{- else }}
         emptyDir: {}
         {{- end }}
@@ -181,8 +181,8 @@ spec:
           name: argocd-tls-certs-cm
         name: tls-certs
       - name: helm-working-dir
-        {{- if $.Values.repoServer.default.volumes.helm_working_dir -}}
-        {{ toYaml $.Values.repoServer.default.volumes.helm_working_dir | nindent 8  }}
+        {{- if $.Values.repoServer.existingVolumes.helm_working_dir -}}
+        {{ toYaml $.Values.repoServer.existingVolumes.helm_working_dir | nindent 8  }}
         {{- else }}
         emptyDir: {}
         {{- end }}
@@ -198,20 +198,20 @@ spec:
           optional: true
           secretName: argocd-repo-server-tls
       - name: tmp-dir
-        {{- if $.Values.repoServer.default.volumes.tmp_dir -}}
-        {{ toYaml $.Values.repoServer.default.volumes.tmp_dir | nindent 8  }}
+        {{- if $.Values.repoServer.existingVolumes.tmp_dir -}}
+        {{ toYaml $.Values.repoServer.existingVolumes.tmp_dir | nindent 8  }}
         {{- else }}
         emptyDir: {}
         {{- end }}
       - name: var-files
-        {{- if $.Values.repoServer.default.volumes.var_files -}}
-        {{ toYaml $.Values.repoServer.default.volumes.var_files | nindent 8  }}
+        {{- if $.Values.repoServer.existingVolumes.var_files -}}
+        {{ toYaml $.Values.repoServer.existingVolumes.var_files | nindent 8  }}
         {{- else }}
         emptyDir: {}
         {{- end }}
       - name: plugins
-        {{- if $.Values.repoServer.default.volumes.plugins -}}
-        {{ toYaml $.Values.repoServer.default.volumes.plugins | nindent 8  }}
+        {{- if $.Values.repoServer.existingVolumes.plugins -}}
+        {{ toYaml $.Values.repoServer.existingVolumes.plugins | nindent 8  }}
         {{- else }}
         emptyDir: {}
         {{- end }}
