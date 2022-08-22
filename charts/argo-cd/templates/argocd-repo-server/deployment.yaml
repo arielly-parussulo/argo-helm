@@ -166,8 +166,12 @@ spec:
       - name: gpg-keys
         configMap:
           name: argocd-gpg-keys-cm
-      - emptyDir: {}
-        name: gpg-keyring
+      - name: gpg-keyring
+        {{- if $.Values.repoServer.default.volumes.gpg_keyring -}}
+        {{ toYaml $.Values.repoServer.default.volumes.gpg_keyring | nindent 8  }}
+        {{- else }}
+        emptyDir: {}
+        {{- end }}
       {{- if .Values.configs.knownHosts }}
       - configMap:
           name: argocd-ssh-known-hosts-cm
@@ -177,7 +181,11 @@ spec:
           name: argocd-tls-certs-cm
         name: tls-certs
       - name: helm-working-dir
+        {{- if $.Values.repoServer.default.volumes.helm_working_dir -}}
+        {{ toYaml $.Values.repoServer.default.volumes.helm_working_dir | nindent 8  }}
+        {{- else }}
         emptyDir: {}
+        {{- end }}
       - name: argocd-repo-server-tls
         secret:
           items:
@@ -189,12 +197,24 @@ spec:
             path: ca.crt
           optional: true
           secretName: argocd-repo-server-tls
-      - emptyDir: {}
-        name: tmp-dir
-      - emptyDir: {}
-        name: var-files
-      - emptyDir: {}
-        name: plugins
+      - name: tmp-dir
+        {{- if $.Values.repoServer.default.volumes.tmp_dir -}}
+        {{ toYaml $.Values.repoServer.default.volumes.tmp_dir | nindent 8  }}
+        {{- else }}
+        emptyDir: {}
+        {{- end }}
+      - name: var-files
+        {{- if $.Values.repoServer.default.volumes.var_files -}}
+        {{ toYaml $.Values.repoServer.default.volumes.var_files | nindent 8  }}
+        {{- else }}
+        emptyDir: {}
+        {{- end }}
+      - name: plugins
+        {{- if $.Values.repoServer.default.volumes.plugins -}}
+        {{ toYaml $.Values.repoServer.default.volumes.plugins | nindent 8  }}
+        {{- else }}
+        emptyDir: {}
+        {{- end }}
       initContainers:
       - command:
         - cp

@@ -1500,6 +1500,9 @@ repoServer:
   # -- Repo server name
   name: repo-server
 
+  default:
+    volumes: {}
+
   # -- The number of repo server pods to run
   replicas: 1
 
