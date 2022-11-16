@@ -520,6 +520,32 @@ repoServer:
     # -- Number of seconds after which the [probe] times out
     timeoutSeconds: 1
 
+  # deploy argocd-repo-server as a statefulset (in this case it is mandatory to have a service account)
+  enableStatefulSet: true
+  
+  # create a list of persistent volumes to be created with your deployment or statefulset
+  volumeClaimTemplates:
+    # tmp_dir:
+    #   accessModes: [ReadWriteOnce]
+    #   storage: 1Gi
+    #   storageClassName: gp2-topology-aware
+    # gpg_keyring:
+    #   accessModes: [ReadWriteOnce]
+    #   storage: 1Gi
+    #   storageClassName: gp2-topology-aware
+    # helm_working_dir:
+    #   accessModes: [ReadWriteOnce]
+    #   storage: 1Gi
+    #   storageClassName: gp2-topology-aware
+    # var_files:
+    #   accessModes: [ReadWriteOnce]
+    #   storage: 1Gi
+    #   storageClassName: gp2-topology-aware
+    # plugins:
+    #   accessModes: [ReadWriteOnce]
+    #   storage: 1Gi
+    #   storageClassName: gp2-topology-aware
+
   # use to override emptydir on default volumes
   existingVolumes: {}
   #  gpg_keyring:
@@ -537,9 +563,6 @@ repoServer:
   #  plugins:
   #    persistentVolumeClaim:
   #      claimName: pvc-argocd-repo-server-plugins
-  
-  
-  
   
 
   # -- Additional volumeMounts to the repo server main container

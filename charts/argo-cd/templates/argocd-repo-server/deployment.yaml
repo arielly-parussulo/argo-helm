@@ -1,5 +1,9 @@
 apiVersion: apps/v1
+{{- if .Values.repoServer.enableStatefulSet }}
+kind: StatefulSet
+{{- else  }}
 kind: Deployment
+{{- end }}
 metadata:
   name: {{ template "argo-cd.repoServer.fullname" . }}
   labels:
@@ -12,6 +16,13 @@ spec:
   selector:
     matchLabels:
       {{- include "argo-cd.selectorLabels" (dict "context" . "name" .Values.repoServer.name) | nindent 6 }}
+  revisionHistoryLimit: 5
+  {{- if .Values.repoServer.enableStatefulSet }}
+  serviceName: {{ template "argo-cd.repoServerServiceAccountName" . }}
+  {{- end }}
+  {{- if (ne .Values.repoServer.autoscaling.enabled true) }}
+  replicas: {{ .Values.repoServer.replicas }}
+  {{- end }}
   template:
     metadata:
       annotations:
@@ -306,12 +317,14 @@ spec:
       - name: gpg-keys
         configMap:
           name: argocd-gpg-keys-cm
+    {{- if not $.Values.repoServer.volumeClaimTemplates.gpg_keyring }}
       - name: gpg-keyring
         {{- if $.Values.repoServer.existingVolumes.gpg_keyring -}}
         {{ toYaml $.Values.repoServer.existingVolumes.gpg_keyring | nindent 8  }}
         {{- else }}
         emptyDir: {}
         {{- end }}
+    {{- end }}
       {{- if .Values.configs.knownHosts }}
       - configMap:
           name: argocd-ssh-known-hosts-cm
@@ -320,12 +333,14 @@ spec:
       - configMap:
           name: argocd-tls-certs-cm
         name: tls-certs
+    {{- if not $.Values.repoServer.volumeClaimTemplates.helm_working_dir }}
       - name: helm-working-dir
         {{- if $.Values.repoServer.existingVolumes.helm_working_dir -}}
         {{ toYaml $.Values.repoServer.existingVolumes.helm_working_dir | nindent 8  }}
         {{- else }}
         emptyDir: {}
         {{- end }}
+    {{- end }}
       - name: argocd-repo-server-tls
         secret:
           secretName: argocd-repo-server-tls
@@ -339,24 +354,30 @@ spec:
             path: ca.crt
           optional: true
           secretName: argocd-repo-server-tls
+    {{- if not $.Values.repoServer.volumeClaimTemplates.tmp_dir }}
       - name: tmp-dir
-        {{- if $.Values.repoServer.existingVolumes.tmp_dir -}}
+        {{- if $.Values.repoServer.existingVolumes.tmp_dir }}
         {{ toYaml $.Values.repoServer.existingVolumes.tmp_dir | nindent 8  }}
         {{- else }}
         emptyDir: {}
         {{- end }}
+    {{- end }}
+    {{- if not $.Values.repoServer.volumeClaimTemplates.var_files }}
       - name: var-files
         {{- if $.Values.repoServer.existingVolumes.var_files -}}
         {{ toYaml $.Values.repoServer.existingVolumes.var_files | nindent 8  }}
         {{- else }}
         emptyDir: {}
         {{- end }}
+    {{- end }}
+    {{- if not $.Values.repoServer.volumeClaimTemplates.plugins }}
       - name: plugins
         {{- if $.Values.repoServer.existingVolumes.plugins -}}
         {{ toYaml $.Values.repoServer.existingVolumes.plugins | nindent 8  }}
         {{- else }}
         emptyDir: {}
         {{- end }}
+    {{- end }}
       initContainers:
       - command:
         - cp
@@ -383,3 +404,24 @@ spec:
       {{- with .Values.repoServer.priorityClassName }}
       priorityClassName: {{ . }}
       {{- end }}
+{{- if .Values.repoServer.priorityClassName }}
+      priorityClassName: {{ .Values.repoServer.priorityClassName }}
+{{- end }}
+{{- if .Values.repoServer.volumeClaimTemplates }}
+  volumeClaimTemplates:
+{{- if .Values.repoServer.volumeClaimTemplates.gpg_keyring }}
+{{- include "argo-cd.repoServer.persistentVolumeClaim" (dict "context" .Values.repoServer.volumeClaimTemplates.gpg_keyring "name" "gpg-keyring" ) | nindent 4 }}
+{{- end }}
+{{- if .Values.repoServer.volumeClaimTemplates.helm_working_dir }}
+{{- include "argo-cd.repoServer.persistentVolumeClaim" (dict "context" .Values.repoServer.volumeClaimTemplates.helm_working_dir "name" "helm-working-dir" ) | nindent 4 }}
+{{- end }}
+{{- if .Values.repoServer.volumeClaimTemplates.tmp_dir }}
+{{- include "argo-cd.repoServer.persistentVolumeClaim" (dict "context" .Values.repoServer.volumeClaimTemplates.tmp_dir "name" "tmp-dir" ) | nindent 4 }}
+{{- end }}
+{{- if .Values.repoServer.volumeClaimTemplates.var_files }}
+{{- include "argo-cd.repoServer.persistentVolumeClaim" (dict "context" .Values.repoServer.volumeClaimTemplates.var_files "name" "var-files" ) | nindent 4 }}
+{{- end }}
+{{- if .Values.repoServer.volumeClaimTemplates.plugins }}
+{{- include "argo-cd.repoServer.persistentVolumeClaim" (dict "context" .Values.repoServer.volumeClaimTemplates.plugins "name" "plugins" ) | nindent 4 }}
+{{- end }}
+{{- end }}
