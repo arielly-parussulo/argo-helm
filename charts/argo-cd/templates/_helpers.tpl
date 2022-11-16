@@ -310,3 +310,20 @@ Return the appropriate apiVersion for pod disruption budget
 {{- print "policy/v1" -}}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Return a PersistentVolumeClaim structure
+*/}}
+{{- define "argo-cd.repoServer.persistentVolumeClaim" -}}
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: {{ .name }}
+  spec:
+    accessModes: {{ .context.accessModes }}
+    resources:
+      requests:
+        storage: {{ .context.storage }}
+    storageClassName: {{ .context.storageClassName }}
+    volumeMode: Filesystem
+{{- end -}}
